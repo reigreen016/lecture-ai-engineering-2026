@@ -1,4 +1,4 @@
-"""第1回基礎: 同じ質問を2モデルに3回ずつ送り、成功・失敗を記録する。"""
+"""第1回基礎: 同じ質問を指定モデルに3回ずつ送り、成功・失敗を記録する。"""
 
 import argparse
 import json
@@ -12,7 +12,7 @@ import time
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--models", nargs=2, required=True)
+    parser.add_argument("--models", nargs='+', required=True)
     parser.add_argument("--interval", type=float, default=15)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -26,7 +26,7 @@ def main() -> None:
     question = "AIE2026の講座の宿題にある「3レベル」とは何ですか？"
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x", encoding="utf-8") as log:
-        for index in range(6):
+        for index in range(3 * len(args.models)):
             model = args.models[index // 3]
             started = datetime.now().astimezone().isoformat()
             start = time.perf_counter()
@@ -50,7 +50,7 @@ def main() -> None:
             log.write(json.dumps(record, ensure_ascii=False) + "\n")
             log.flush()
             print(f"{model} {index % 3 + 1}/3: exit={status}", flush=True)
-            if index != 5:
+            if index != 3 * len(args.models) - 1:
                 time.sleep(args.interval)
 
 
